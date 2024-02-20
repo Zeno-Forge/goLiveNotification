@@ -35,7 +35,7 @@ func PostModal(postItem post.Post) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#postList\" hx-swap=\"outerHTML\"><div class=\"flex justify-between items-center mb-4\"><h2 class=\"text-xl font-semibold\">Edit Post</h2><div><label for=\"schedule\" class=\"block text-sm font-medium text-gray-700 mr-2\">Schedule</label> <input type=\"datetime-local\" id=\"scheduleInput\" name=\"scheduleInput\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#postList\" hx-swap=\"outerHTML\" enctype=\"multipart/form-data\"><div class=\"flex justify-between items-center mb-4\"><h2 class=\"text-xl font-semibold\">Edit Post</h2><div><label for=\"schedule\" class=\"block text-sm font-medium text-gray-700 mr-2\">Schedule</label> <input type=\"datetime-local\" id=\"scheduleInput\" name=\"scheduleInput\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -161,7 +161,7 @@ func PostModal(postItem post.Post) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" alt=\"Thumbnail\"></div></div><!-- Large Image --><img id=\"previewImage\" class=\"hidden rounded-lg mt-2\" src=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" alt=\"Thumbnail\"></div></div><!-- Large Image --><img id=\"previewImage\" class=\"rounded-lg mt-2\" src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -169,7 +169,7 @@ func PostModal(postItem post.Post) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" alt=\"\"><!-- Footer --><div class=\"flex items-center mt-4\"><img class=\"h-4 w-4\" src=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"><!-- Footer --><div class=\"flex items-center mt-4\"><img class=\"h-4 w-4\" src=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

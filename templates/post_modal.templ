@@ -7,7 +7,7 @@ import "fmt"
 templ PostModal(postItem post.Post) {
  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center" id="editModal">
     <div class="bg-white p-5 rounded-lg shadow-lg w-full max-w-2xl">
-        <form class="space-y-4" hx-put={ fmt.Sprintf("/post/%d", postItem.ID) } hx-target="#postList" hx-swap="outerHTML">
+        <form class="space-y-4" hx-put={ fmt.Sprintf("/post/%d", postItem.ID) } hx-target="#postList" hx-swap="outerHTML" enctype="multipart/form-data">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold">Edit Post</h2>
                 <div>
@@ -93,7 +93,7 @@ templ PostModal(postItem post.Post) {
                         </div>
                     </div>
                     <!-- Large Image -->
-                    <img id="previewImage" class="hidden rounded-lg mt-2" src={ postItem.Message.Embed[0].Image.URL } alt=""/>
+                    <img id="previewImage" class="rounded-lg mt-2" src={ postItem.Message.Embed[0].Image.URL }/>
                     <!-- Footer -->
                     <div class="flex items-center mt-4">
                         <img class="h-4 w-4" src={ postItem.Message.Embed[0].Footer.IconURL } alt=""/>
