@@ -1,9 +1,9 @@
 package templates
 
-import "zenoforge.com/goLiveNotif/post"
 import "fmt"
+import "zenoforge.com/goLiveNotif/models"
 
-templ PostsTempl(postList []post.Post) {
+templ PostsTempl(postList [] models.Post) {
     <div class="overflow-x-auto" id="postList">
         <ul class="min-w-full divide-y divide-gray-200">
             for _, post := range postList {

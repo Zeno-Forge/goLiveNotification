@@ -1,10 +1,10 @@
 package templates
 
-import "zenoforge.com/goLiveNotif/post"
 import "strconv"
 import "fmt"
+import "zenoforge.com/goLiveNotif/models"
 
-templ PostModal(postItem post.Post) {
+templ PostModal(postItem models.Post) {
  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center" id="editModal">
     <div class="bg-white p-5 rounded-lg shadow-lg w-full max-w-2xl">
         <form class="space-y-4" hx-put={ fmt.Sprintf("/post/%d", postItem.ID) } hx-target="#postList" hx-swap="outerHTML" enctype="multipart/form-data">
