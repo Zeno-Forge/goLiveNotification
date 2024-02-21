@@ -47,7 +47,7 @@ func NewServer(logger *slog.Logger) *echo.Echo {
 	e.Use(middleware.Recover())
 
 	// Static files
-	e.Static("/uploads", "./uploads")
+	e.Static("/data/uploads", "./data/uploads")
 
 	// Routes
 	e.GET("/", handlers.MainPage)
