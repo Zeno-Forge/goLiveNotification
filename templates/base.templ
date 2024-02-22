@@ -20,9 +20,19 @@ templ BasePage(content templ.Component) {
             <div class="modal" id="editModal" style="display:none;">
                 <!-- Modal content will be injected here -->
             </div>
+            <div id="postListWrapper" hx-get="/get-posts" hx-target="#postList" hx-trigger="sseReceived" hx-swap="outerHTML">
             <!-- Dynamic content from server -->
             @content
+            </div>
         </main>
     </body>
+    <script>
+    // Establish the SSE connection to the server
+    const eventSource = new EventSource('/events');
+    eventSource.onmessage = function(event) {
+        // When a message is received, dispatch a custom event to trigger HTMX to reload the posts list
+        document.getElementById('postListWrapper').dispatchEvent(new CustomEvent('sseReceived'));
+    };
+    </script>
     </html>
 }

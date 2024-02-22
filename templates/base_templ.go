@@ -23,7 +23,7 @@ func BasePage(content templ.Component) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><title>Go Live Notification Scheduler</title><script src=\"https://unpkg.com/htmx.org\"></script><link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\"></head><body class=\"bg-gray-100\"><header class=\"bg-blue-500 text-white p-4\"><h1 class=\"text-xl font-semibold\">Go Live Notification Scheduler</h1></header><main class=\"p-4\"><!-- Create New Post Button --><div class=\"mb-4\"><button hx-get=\"/post/create\" hx-target=\"#editModal\" hx-swap=\"outerHTML\" class=\"bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded\">Create New Post</button></div><div class=\"modal\" id=\"editModal\" style=\"display:none;\"><!-- Modal content will be injected here --></div><!-- Dynamic content from server -->")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><title>Go Live Notification Scheduler</title><script src=\"https://unpkg.com/htmx.org\"></script><link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\"></head><body class=\"bg-gray-100\"><header class=\"bg-blue-500 text-white p-4\"><h1 class=\"text-xl font-semibold\">Go Live Notification Scheduler</h1></header><main class=\"p-4\"><!-- Create New Post Button --><div class=\"mb-4\"><button hx-get=\"/post/create\" hx-target=\"#editModal\" hx-swap=\"outerHTML\" class=\"bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded\">Create New Post</button></div><div class=\"modal\" id=\"editModal\" style=\"display:none;\"><!-- Modal content will be injected here --></div><div id=\"postListWrapper\" hx-get=\"/get-posts\" hx-target=\"#postList\" hx-trigger=\"sseReceived\" hx-swap=\"outerHTML\"><!-- Dynamic content from server -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -31,7 +31,7 @@ func BasePage(content templ.Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</main></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></main></body><script>\n    // Establish the SSE connection to the server\n    const eventSource = new EventSource('/events');\n    eventSource.onmessage = function(event) {\n        // When a message is received, dispatch a custom event to trigger HTMX to reload the posts list\n        document.getElementById('postListWrapper').dispatchEvent(new CustomEvent('sseReceived'));\n    };\n    </script></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

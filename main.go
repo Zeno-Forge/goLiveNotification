@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"zenoforge.com/goLiveNotif/handlers"
 	"zenoforge.com/goLiveNotif/log"
+	"zenoforge.com/goLiveNotif/models"
 	"zenoforge.com/goLiveNotif/utils"
 )
 
@@ -47,6 +48,7 @@ func NewServer(logger *slog.Logger) *echo.Echo {
 	e.Use(middleware.Recover())
 
 	// Static files
+	e.Static("/static", "./static")
 	e.Static("/data/uploads", "./data/uploads")
 
 	// Routes
@@ -54,7 +56,9 @@ func NewServer(logger *slog.Logger) *echo.Echo {
 	e.GET("/post/:id", handlers.GetPost)
 	e.GET("/post/create", handlers.CreatePost)
 	e.PUT("/post/:id", handlers.EditPost)
-	e.DELETE("/post/:id", handlers.DeletePost)
+	e.DELETE("/post/:id", handlers.DeletePostHandler)
+	e.GET("/events", handlers.EventsHandler)
+	e.GET("/get-posts", handlers.GetPostList)
 
 	return e
 }
@@ -67,6 +71,14 @@ func main() {
 
 	server := NewServer(log.Log)
 
+	var config models.ServerConfig
+	err := utils.LoadDataFromFile(&config, "data", "config.json")
+	if err != nil {
+		panic(err)
+	}
+
+	handlers.ManageScheduledPosts()
+
 	// Start server
-	server.Logger.Fatal(server.Start(":8989"))
+	server.Logger.Fatal(server.Start(config.Server.Port))
 }

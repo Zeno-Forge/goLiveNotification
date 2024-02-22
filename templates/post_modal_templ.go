@@ -27,7 +27,7 @@ func PostModal(postItem models.Post) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center\" id=\"editModal\"><div class=\"bg-white p-5 rounded-lg shadow-lg w-full max-w-2xl\"><form class=\"space-y-4\" hx-put=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center\" id=\"editModal\"><div class=\"bg-white p-5 rounded-lg shadow-lg w-full max-w-2xl\"><form id=\"editForm\" class=\"space-y-4\" hx-put=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -87,7 +87,15 @@ func PostModal(postItem models.Post) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mt-4\"><label for=\"imageUpload\" class=\"block text-sm font-medium text-gray-700\">Upload Image</label> <input type=\"file\" id=\"imageUpload\" name=\"imageUpload\" accept=\"image/*\" class=\"mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100\"></div><div class=\"mt-4\"><button type=\"button\" id=\"advancedToggle\" class=\"py-2 px-4 bg-gray-200 text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Advanced</button></div><!-- Advanced Fields (initially hidden) --><div id=\"advancedFields\" class=\"hidden space-y-4 mt-4\"><!-- URL Field --><div><label for=\"url\" class=\"block text-sm font-medium text-gray-700\">URL</label> <input type=\"text\" name=\"urlInput\" id=\"urlInput\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mt-4\"><label for=\"imageUpload\" class=\"block text-sm font-medium text-gray-700\">Upload Image</label> <input type=\"file\" id=\"imageUpload\" name=\"imageUpload\" accept=\"image/*\" class=\"mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100\"></div><div class=\"mt-4\"><button type=\"button\" id=\"advancedToggle\" class=\"py-2 px-4 bg-gray-200 text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Advanced</button></div><!-- Advanced Fields (initially hidden) --><div id=\"advancedFields\" class=\"hidden space-y-4 mt-4\"><div><label for=\"content\" class=\"block text-sm font-medium text-gray-700\">Content</label> <input type=\"text\" name=\"contentInput\" id=\"contentInput\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(postItem.Message.Content))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\" placeholder=\"Enter Content\"></div><!-- URL Field --><div><label for=\"url\" class=\"block text-sm font-medium text-gray-700\">URL</label> <input type=\"text\" name=\"urlInput\" id=\"urlInput\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -134,7 +142,7 @@ func PostModal(postItem models.Post) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(postItem.Message.Embed[0].Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 86, Col: 128}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 90, Col: 128}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -147,7 +155,7 @@ func PostModal(postItem models.Post) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(postItem.Message.Embed[0].Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 87, Col: 119}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 91, Col: 119}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -184,13 +192,13 @@ func PostModal(postItem models.Post) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(postItem.Message.Embed[0].Footer.Text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 99, Col: 101}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 103, Col: 101}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></div></div></div></article></div></div><script>\n    // Color picker event listener\n    document.getElementById('colorPicker').addEventListener('input', function(e) {\n      const color = e.target.value;\n      document.getElementById('colorInput').value = parseInt(color.replace('#', ''), 16);\n      document.documentElement.style.setProperty('--background-tertiary', color);\n    });\n  \n    // Title input event listener\n    document.getElementById('titleInput').addEventListener('input', function() {\n      document.getElementById('previewTitle').textContent = this.value;\n    });\n  \n    // Description input event listener\n    document.getElementById('descriptionInput').addEventListener('input', function() {\n      document.getElementById('previewDesc').textContent = this.value;\n    });\n  \n    // URL input event listener\n    document.getElementById('urlInput').addEventListener('input', function() {\n      document.getElementById('previewURL').href = this.value;\n    });\n  \n    // Advanced section toggle event listener\n    document.getElementById('advancedToggle').addEventListener('click', function() {\n      const advancedFields = document.getElementById('advancedFields');\n      advancedFields.classList.toggle('hidden');\n    });\n  \n    // Image upload event listener\n    document.getElementById('imageUpload').addEventListener('change', function(event) {\n      const reader = new FileReader();\n      reader.onload = function(e) {\n        const previewImage = document.getElementById('previewImage');\n        previewImage.src = e.target.result;\n        previewImage.classList.remove('hidden');\n      };\n      reader.readAsDataURL(event.target.files[0]);\n    });\n  \n    // Preview toggle checkbox event listener\n    document.getElementById('togglePreviewCheckbox').addEventListener('change', function() {\n      const discordPreview = document.getElementById('discordPreview');\n      discordPreview.style.display = this.checked ? 'block' : 'none';\n    });\n\n    // Listen for the HTMX afterOnLoad event on the form\n    document.querySelector('form').addEventListener('htmx:afterOnLoad', function(event) {\n        // Check if the response status is 200 (OK)\n        if (event.detail.xhr.status === 200) {\n            // Hide the modal\n            document.getElementById('editModal').style.display = 'none';\n        } else {\n            // Handle non-OK responses if needed\n            console.error('Request failed with status:', event.detail.xhr.status);\n        }\n    });\n  </script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></div></div></div></article></div></div><script src=\"/static/scripts/editModal.js\"></script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

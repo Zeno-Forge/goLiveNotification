@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -16,8 +17,18 @@ import (
 var Posts []models.Post
 
 func CreatePost(c echo.Context) error {
+	var discordConf models.DiscordConfig
+	err := utils.LoadDataFromFile(&discordConf, "data", "config.json")
+	if err != nil {
+		return err
+	}
+
+	contentString := fmt.Sprintf("<@&%s>", discordConf.Discord.RoleID)
+
 	var newPost = models.Post{
+		ScheduleAt: time.Now(),
 		Message: models.DiscordMessage{
+			Content: contentString,
 			Embed: []models.Embed{
 				{
 					Thumbnail: models.URL{URL: "https://static-cdn.jtvnw.net/jtv_user_pictures/f77022c4-2d3e-45ff-a7a9-22ada2688c50-profile_image-300x300.png"},
@@ -39,15 +50,15 @@ func CreatePost(c echo.Context) error {
 	}
 	newPost.ID = newID
 
-	Posts = append(Posts, newPost)
-
-	if err := utils.SaveDataToFile(Posts, "data", "postStorage.json"); err != nil {
-		return err
-	}
-
 	postModal := templates.PostModal(newPost)
 
 	return utils.Render(c, http.StatusOK, postModal)
+}
+
+func GetPostList(c echo.Context) error {
+	postListComp := templates.PostsTempl(Posts)
+
+	return utils.Render(c, http.StatusOK, postListComp)
 }
 
 func GetPost(c echo.Context) error {
@@ -72,13 +83,17 @@ func EditPost(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid post ID"})
 	}
 
-	index, found := utils.FindPostIndexByID(id, Posts)
-	if !found {
-		return c.JSON(http.StatusNotFound, map[string]string{"message": "Post not found"})
-	}
-
 	color, _ := strconv.Atoi(c.FormValue("colorInput"))
-	schedule, _ := time.Parse("2006-01-02T15:04", c.FormValue("scheduleInput"))
+
+	timezone := c.FormValue("timezone")
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		return err
+	}
+	schedule, err := time.ParseInLocation("2006-01-02T15:04", c.FormValue("scheduleInput"), loc)
+	if err != nil {
+		return err
+	}
 
 	var updatedPost = models.Post{
 		ID:         id,
@@ -128,38 +143,113 @@ func EditPost(c echo.Context) error {
 		updatedPost.Message.Embed[0].Image.URL = dstPath
 	}
 
-	updatedPost.ID = id
-
-	Posts[index] = updatedPost
+	index, found := utils.FindPostIndexByID(id, Posts)
+	if !found {
+		Posts = append(Posts, updatedPost)
+	} else {
+		Posts[index] = updatedPost
+	}
 
 	if err := utils.SaveDataToFile(Posts, "data", "postStorage.json"); err != nil {
 		return err
 	}
+
+	ManageScheduledPosts()
 
 	postListComp := templates.PostsTempl(Posts)
 
 	return utils.Render(c, http.StatusOK, postListComp)
 }
 
-func DeletePost(c echo.Context) error {
+func DeletePostHandler(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid post ID"})
 	}
 
+	err = DeletePost(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Unable to delete post"})
+	}
+
+	ManageScheduledPosts()
+
+	postListComp := templates.PostsTempl(Posts)
+
+	return utils.Render(c, http.StatusOK, postListComp)
+}
+
+func DeletePost(id int) error {
+
 	index, found := utils.FindPostIndexByID(id, Posts)
 	if !found {
-		return c.JSON(http.StatusNotFound, map[string]string{"message": "Post not found"})
+		return fmt.Errorf("could not find post for post id:%d", id)
 	}
 
 	// Remove the post from the slice
 	Posts = append(Posts[:index], Posts[index+1:]...)
 
 	if err := utils.SaveDataToFile(Posts, "data", "postStorage.json"); err != nil {
-		return err
+		return fmt.Errorf("unable to save to postStorage.json after delete operation.\nError:\n%s", err)
 	}
 
-	postListComp := templates.PostsTempl(Posts)
+	return nil
+}
 
-	return utils.Render(c, http.StatusOK, postListComp)
+var checkerGoroutineRunning bool
+var stopSignal chan string
+
+func ManageScheduledPosts() {
+	if stopSignal == nil {
+		stopSignal = make(chan string)
+	}
+	if len(Posts) > 0 && !checkerGoroutineRunning {
+		go scheduledPostsChecker(stopSignal)
+		checkerGoroutineRunning = true
+
+	} else if len(Posts) == 0 && checkerGoroutineRunning {
+		stopSignal <- "stop" // Send stop signal
+		checkerGoroutineRunning = false
+		stopSignal = nil
+	}
+}
+
+func scheduledPostsChecker(stop <-chan string) {
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			now := time.Now()
+			for i := 0; i < len(Posts); {
+				post := Posts[i]
+				if now.After(post.ScheduleAt) {
+					err := sendPostNotif(post)
+					if err != nil {
+						return
+					}
+					err = DeletePost(post.ID)
+					if err != nil {
+						return
+					}
+					PublishUpdate("post deleted")
+					if len(Posts) == 0 {
+						checkerGoroutineRunning = false
+						return
+					}
+				} else {
+					i++
+				}
+			}
+		case <-stop: // Received a stop signal
+			return // Exit the goroutine
+		}
+	}
+}
+
+func sendPostNotif(post models.Post) error {
+	// Implement the functionality you want to execute for each post
+	println("Executing post:", post.ID)
+	return nil
 }

@@ -7,7 +7,7 @@ import "zenoforge.com/goLiveNotif/models"
 templ PostModal(postItem models.Post) {
  <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center" id="editModal">
     <div class="bg-white p-5 rounded-lg shadow-lg w-full max-w-2xl">
-        <form class="space-y-4" hx-put={ fmt.Sprintf("/post/%d", postItem.ID) } hx-target="#postList" hx-swap="outerHTML" enctype="multipart/form-data">
+        <form id="editForm" class="space-y-4" hx-put={ fmt.Sprintf("/post/%d", postItem.ID) } hx-target="#postList" hx-swap="outerHTML" enctype="multipart/form-data">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold">Edit Post</h2>
                 <div>
@@ -36,6 +36,10 @@ templ PostModal(postItem models.Post) {
             </div>
             <!-- Advanced Fields (initially hidden) -->
             <div id="advancedFields" class="hidden space-y-4 mt-4">
+                <div>
+                    <label for="content" class="block text-sm font-medium text-gray-700">Content</label>
+                    <input type="text" name="contentInput" id="contentInput" value={ postItem.Message.Content } class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Enter Content"/>
+                </div>
                 <!-- URL Field -->
                 <div>
                     <label for="url" class="block text-sm font-medium text-gray-700">URL</label>
@@ -104,62 +108,5 @@ templ PostModal(postItem models.Post) {
         </article>
     </div>
   </div>
-  <script>
-    // Color picker event listener
-    document.getElementById('colorPicker').addEventListener('input', function(e) {
-      const color = e.target.value;
-      document.getElementById('colorInput').value = parseInt(color.replace('#', ''), 16);
-      document.documentElement.style.setProperty('--background-tertiary', color);
-    });
-  
-    // Title input event listener
-    document.getElementById('titleInput').addEventListener('input', function() {
-      document.getElementById('previewTitle').textContent = this.value;
-    });
-  
-    // Description input event listener
-    document.getElementById('descriptionInput').addEventListener('input', function() {
-      document.getElementById('previewDesc').textContent = this.value;
-    });
-  
-    // URL input event listener
-    document.getElementById('urlInput').addEventListener('input', function() {
-      document.getElementById('previewURL').href = this.value;
-    });
-  
-    // Advanced section toggle event listener
-    document.getElementById('advancedToggle').addEventListener('click', function() {
-      const advancedFields = document.getElementById('advancedFields');
-      advancedFields.classList.toggle('hidden');
-    });
-  
-    // Image upload event listener
-    document.getElementById('imageUpload').addEventListener('change', function(event) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const previewImage = document.getElementById('previewImage');
-        previewImage.src = e.target.result;
-        previewImage.classList.remove('hidden');
-      };
-      reader.readAsDataURL(event.target.files[0]);
-    });
-  
-    // Preview toggle checkbox event listener
-    document.getElementById('togglePreviewCheckbox').addEventListener('change', function() {
-      const discordPreview = document.getElementById('discordPreview');
-      discordPreview.style.display = this.checked ? 'block' : 'none';
-    });
-
-    // Listen for the HTMX afterOnLoad event on the form
-    document.querySelector('form').addEventListener('htmx:afterOnLoad', function(event) {
-        // Check if the response status is 200 (OK)
-        if (event.detail.xhr.status === 200) {
-            // Hide the modal
-            document.getElementById('editModal').style.display = 'none';
-        } else {
-            // Handle non-OK responses if needed
-            console.error('Request failed with status:', event.detail.xhr.status);
-        }
-    });
-  </script>
+  <script src="/static/scripts/editModal.js"></script>
 }
