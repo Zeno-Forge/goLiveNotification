@@ -1,14 +1,20 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"zenoforge.com/goLiveNotif/log"
 	"zenoforge.com/goLiveNotif/models"
 	"zenoforge.com/goLiveNotif/templates"
 	"zenoforge.com/goLiveNotif/utils"
@@ -231,6 +237,7 @@ func scheduledPostsChecker(stop <-chan string) {
 					}
 					err = DeletePost(post.ID)
 					if err != nil {
+						log.Error(fmt.Sprintf("Error in deleting post after schedule send:\n%s", err.Error()))
 						return
 					}
 					PublishUpdate("post deleted")
@@ -249,7 +256,85 @@ func scheduledPostsChecker(stop <-chan string) {
 }
 
 func sendPostNotif(post models.Post) error {
-	// Implement the functionality you want to execute for each post
-	println("Executing post:", post.ID)
+	var buffer bytes.Buffer
+	multipartWriter := multipart.NewWriter(&buffer)
+
+	imagePath := post.Message.Embed[0].Image.URL
+
+	// Create a part for the file
+	file, err := os.Open(imagePath)
+	if err != nil {
+		log.Error(fmt.Sprintf("Error in opening image for discord message:\n%s", err.Error()))
+		return err
+	}
+	defer file.Close()
+
+	filePart, err := multipartWriter.CreateFormFile("file", filepath.Base(file.Name()))
+	if err != nil {
+		log.Error(fmt.Sprintf("Error in creating file part for discord request:\n%s", err.Error()))
+		return err
+	}
+	_, err = io.Copy(filePart, file)
+	if err != nil {
+		log.Error(fmt.Sprintf("Error in copying image file to discord message:\n%s", err.Error()))
+		return err
+	}
+
+	// Create a part for the JSON payload
+	part, err := multipartWriter.CreatePart(
+		textproto.MIMEHeader{
+			"Content-Disposition": []string{`form-data; name="payload_json"`},
+			"Content-Type":        []string{"application/json"},
+		},
+	)
+	if err != nil {
+		log.Error(fmt.Sprintf("Error in creating part in multipart request for discord message:\n%s", err.Error()))
+		return err
+	}
+
+	post.Message.Embed[0].Image.URL = fmt.Sprintf("attachment://%s", filepath.Base(file.Name()))
+
+	// Encode and write the JSON payload to the part
+	err = json.NewEncoder(part).Encode(post.Message)
+	if err != nil {
+		log.Error(fmt.Sprintf("Error in encoding discord message before sending:\n%s", err.Error()))
+		return err
+	}
+
+	jsonPayload, _ := json.Marshal(post.Message)
+	log.Info(string(jsonPayload))
+
+	multipartWriter.Close()
+
+	var discConf models.DiscordConfig
+	err = utils.LoadDataFromFile(&discConf, "data", "config.json")
+	if err != nil {
+		log.Error(fmt.Sprintf("Error loading discord data froim config.json:\n%s", err.Error()))
+		return err
+	}
+
+	webhookURL := discConf.Discord.WebhookUrl
+
+	req, err := http.NewRequest("POST", webhookURL, &buffer)
+	if err != nil {
+		log.Error(fmt.Sprintf("Error in creating discord post request:\n%s", err.Error()))
+		return err
+	}
+	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error(fmt.Sprintf("Error in sending discord post request:\n%s", err.Error()))
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		log.Error(fmt.Sprintf("discord webhook error: %s", string(bodyBytes)))
+		return fmt.Errorf("discord webhook error: %s", string(bodyBytes))
+	}
+
 	return nil
 }
