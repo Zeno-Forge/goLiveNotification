@@ -58,7 +58,7 @@ func PostModal(postItem models.Post) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(postItem.Message.Embed[0].Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 23, Col: 308}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 23, Col: 297}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -76,7 +76,7 @@ func PostModal(postItem models.Post) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(postItem.Message.Embed[0].Image.URL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 27, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 27, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -87,7 +87,25 @@ func PostModal(postItem models.Post) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"mt-4\"><label for=\"imageUpload\" class=\"block text-sm font-medium text-gray-700\">Upload Image</label> <input type=\"file\" id=\"imageUpload\" name=\"imageUpload\" accept=\"image/*\" class=\"mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100\"></div><div class=\"mt-4\"><button type=\"button\" id=\"advancedToggle\" class=\"py-2 px-4 bg-gray-200 text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Advanced</button></div><!-- Advanced Fields (initially hidden) --><div id=\"advancedFields\" class=\"hidden space-y-4 mt-4\"><div><label for=\"content\" class=\"block text-sm font-medium text-gray-700\">Content</label> <input type=\"text\" name=\"contentInput\" id=\"contentInput\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<img id=\"image-preview\" src=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(postItem.Message.Embed[0].Image.URL))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"rounded-lg mt-2\"><div id=\"dropArea\" class=\"mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if postItem.Message.Embed[0].Image.URL != "" {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" style=\"display:none;\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><div class=\"text-center\"><svg class=\"mx-auto h-12 w-12 text-gray-300\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z\" clip-rule=\"evenodd\"></path></svg><div class=\"mt-4 flex text-sm leading-6 text-gray-600\"><label for=\"imageUpload\" class=\"relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500\"><span>Upload Image</span> <input id=\"imageUpload\" name=\"imageUpload\" type=\"file\" class=\"sr-only\"></label><p class=\"pl-1\">or drag and drop</p></div><p class=\"text-xs leading-5 text-gray-600\">PNG, JPG, GIF up to 10MB</p></div></div><div class=\"mt-4\"><button type=\"button\" id=\"advancedToggle\" class=\"py-2 px-4 bg-gray-200 text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Advanced</button></div><!-- Advanced Fields (initially hidden) --><div id=\"advancedFields\" class=\"hidden space-y-4 mt-4\"><div><label for=\"content\" class=\"block text-sm font-medium text-gray-700\">Content</label> <input type=\"text\" name=\"contentInput\" id=\"contentInput\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -135,14 +153,14 @@ func PostModal(postItem models.Post) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\" placeholder=\"Enter Footer Text\"></div></div><!-- Additional fields for Thumbnail, Image, and Footer as needed --><div class=\"flex justify-end space-x-2\"><button type=\"button\" class=\"py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\" onclick=\"document.getElementById(&#39;editModal&#39;).style.display=&#39;none&#39;;\">Cancel</button> <button type=\"submit\" class=\"py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Save</button></div></form><!-- Preview Section --><div class=\"flex items-center mb-2\"><input id=\"togglePreviewCheckbox\" type=\"checkbox\" class=\"w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500\" unchecked> <label for=\"togglePreviewCheckbox\" class=\"ml-2 block text-sm font-medium text-gray-700\">Discord Preview:</label></div><article id=\"discordPreview\" class=\"hidden max-w-md mx-auto mt-8\"><div class=\"max-w-md mx-auto mt-8\" style=\"border-color: hsla(261, 43.2%, 44.9%, 1); max-width: 432px;\"><div class=\"p-4 rounded-lg\" style=\"background: var(--background-secondary, #36393f); border-left: 4px solid var(--background-tertiary, #0558d4);\"><div class=\"flex p-0.5\"><!-- Column for Title and Description --><div class=\"p-1 flex-grow\"><h3 id=\"previewTitle\" class=\"text-sm font-bold text-blue-400 pb-1\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm\" placeholder=\"Enter Footer Text\"></div></div><!-- Additional fields for Thumbnail, Image, and Footer as needed --><div class=\"flex justify-end space-x-2\"><button type=\"button\" id=\"cancelButton\" class=\"py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Cancel</button> <button type=\"submit\" class=\"py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500\">Save</button></div></form><!-- Preview Section --><div class=\"flex items-center mb-2\"><input id=\"togglePreviewCheckbox\" type=\"checkbox\" class=\"w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500\" unchecked> <label for=\"togglePreviewCheckbox\" class=\"ml-2 block text-sm font-medium text-gray-700\">Discord Preview:</label></div><article id=\"discordPreview\" class=\"hidden max-w-md mx-auto mt-8\"><div class=\"max-w-md mx-auto mt-8\" style=\"border-color: hsla(261, 43.2%, 44.9%, 1); max-width: 432px;\"><div class=\"p-4 rounded-lg\" style=\"background: var(--background-secondary, #36393f); border-left: 4px solid var(--background-tertiary, #0558d4);\"><div class=\"flex p-0.5\"><!-- Column for Title and Description --><div class=\"p-1 flex-grow\"><h3 id=\"previewTitle\" class=\"text-sm font-bold text-blue-400 pb-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(postItem.Message.Embed[0].Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 90, Col: 128}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 104, Col: 108}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -155,7 +173,7 @@ func PostModal(postItem models.Post) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(postItem.Message.Embed[0].Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 91, Col: 119}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 105, Col: 99}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -192,13 +210,13 @@ func PostModal(postItem models.Post) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(postItem.Message.Embed[0].Footer.Text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 103, Col: 101}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/post_modal.templ`, Line: 117, Col: 84}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></div></div></div></article></div></div><script src=\"/static/scripts/editModal.js\"></script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></div></div></div></article><script src=\"/static/scripts/editModal.js\"></script><script src=\"/static/scripts/dragDrop.js\"></script></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

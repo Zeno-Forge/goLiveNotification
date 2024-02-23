@@ -1,7 +1,12 @@
 
 // Set user local timezone with htmx request
 document.querySelector('form').addEventListener('htmx:configRequest', function(evt) {
+  const formData = new FormData(evt.detail.formData)
   evt.detail.parameters['timezone'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  if (droppedFile !== null) {
+    evt.detail.parameters['imageUpload'] = droppedFile;
+  }
 });
 
 // Color picker event listener
@@ -39,6 +44,15 @@ document.getElementById('imageUpload').addEventListener('change', function(event
     const previewImage = document.getElementById('previewImage');
     previewImage.src = e.target.result;
     previewImage.classList.remove('hidden');
+    const img = document.getElementById('image-preview');
+    if(img) {
+      img.src = e.target.result;
+    }
+        
+    const dropArea = document.getElementById('dropArea');
+    if(dropArea) {
+      dropArea.classList.add('hidden');
+    }
   };
   reader.readAsDataURL(event.target.files[0]);
 });
@@ -59,4 +73,11 @@ document.querySelector('form').addEventListener('htmx:afterOnLoad', function(eve
         // Handle non-OK responses if needed
         console.error('Request failed with status:', event.detail.xhr.status);
     }
+});
+
+document.body.addEventListener('click', function(event) {
+  if (event.target.id === 'cancelButton') {
+    document.getElementById('editModal').innerHTML = '';
+    document.getElementById('editModal').style.display = 'none';
+  }
 });

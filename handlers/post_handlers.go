@@ -199,6 +199,12 @@ func DeletePost(id int) error {
 		return fmt.Errorf("unable to save to postStorage.json after delete operation.\nError:\n%s", err)
 	}
 
+	// cleanup file uploads
+	err := os.RemoveAll(fmt.Sprintf("./data/uploads/%d", id))
+	if err != nil {
+		log.Error("Failed to remove directory from removed post: %v", err)
+	}
+
 	return nil
 }
 

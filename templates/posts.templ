@@ -4,29 +4,27 @@ import "fmt"
 import "zenoforge.com/goLiveNotif/models"
 
 templ PostsTempl(postList [] models.Post) {
-    <div class="overflow-x-auto" id="postList">
-        <ul class="min-w-full divide-y divide-gray-200">
-            for _, post := range postList {
-                <li class="flex items-center justify-between px-6 py-4">
-                    <!-- Schedule Time section -->
-                    <div class="flex-shrink-0 pr-4">
-                        <p class="text-sm text-gray-500">Scheduled Time:</p>
-                        <p class="text-sm font-medium text-gray-900">{ post.ScheduleAt.Format("01-02-2006 3:04 PM") }</p>
-                    </div>
-
-                    <!-- Title and Description side by side -->
-                    <div class="flex-grow flex items-center justify-center space-x-4">
-                        <h2 class="text-lg font-medium text-gray-900">{ post.Message.Embed[0].Title }</h2>
-                        <p class="text-sm text-gray-500">{ post.Message.Embed[0].Description }</p>
-                    </div>
-
-                    <!-- Action buttons on the far right -->
-                    <div class="flex-shrink-0">
-                        <button class="text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium mr-2" hx-get={ fmt.Sprintf("/post/%d", post.ID) } hx-target="#editModal" hx-swap="outerHTML">Edit</button>
-                        <button class="text-white bg-red-500 hover:bg-red-600 px-3 py-2 rounded-md text-sm font-medium" hx-delete={ fmt.Sprintf("/post/%d", post.ID) } hx-target="#postList" hx-swap="outerHTML">Delete</button>
-                    </div>
-                </li>
-            }
-        </ul>
-    </div>
+	<div class="overflow-x-auto" id="postList">
+		<ul class="min-w-full divide-y divide-gray-200">
+			for _, post := range postList {
+				<li class="flex items-center justify-between px-6 py-4">
+					<!-- Schedule Time section -->
+					<div class="flex-shrink-0 pr-4">
+						<p class="text-sm text-gray-500">Scheduled Time:</p>
+						<p class="text-sm font-medium text-gray-900">{ post.ScheduleAt.Format("01-02-2006 3:04 PM") }</p>
+					</div>
+					<!-- Title and Description side by side -->
+					<div class="flex-grow flex items-center justify-center space-x-4">
+						<h2 class="text-lg font-medium text-gray-900">{ post.Message.Embed[0].Title }</h2>
+						<p class="text-sm text-gray-500">{ post.Message.Embed[0].Description }</p>
+					</div>
+					<!-- Action buttons on the far right -->
+					<div class="flex-shrink-0">
+						<button class="text-white bg-blue-500 hover:bg-blue-600 px-3 py-2 rounded-md text-sm font-medium mr-2" hx-get={ fmt.Sprintf("/post/%d", post.ID) } hx-target="#editModal" hx-swap="outerHTML">Edit</button>
+						<button class="text-white bg-red-500 hover:bg-red-600 px-3 py-2 rounded-md text-sm font-medium" hx-delete={ fmt.Sprintf("/post/%d", post.ID) } hx-target="#postList" hx-swap="outerHTML">Delete</button>
+					</div>
+				</li>
+			}
+		</ul>
+	</div>
 }
