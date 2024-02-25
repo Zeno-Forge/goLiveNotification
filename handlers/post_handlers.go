@@ -224,11 +224,13 @@ func ManageScheduledPosts() {
 	if len(Posts) > 0 && !checkerGoroutineRunning {
 		go scheduledPostsChecker(stopSignal)
 		checkerGoroutineRunning = true
+		log.Info("Scheduler Started")
 
 	} else if len(Posts) == 0 && checkerGoroutineRunning {
 		stopSignal <- "stop" // Send stop signal
 		checkerGoroutineRunning = false
 		stopSignal = nil
+		log.Info("Scheduler Stopped")
 	}
 }
 
@@ -245,16 +247,22 @@ func scheduledPostsChecker(stop <-chan string) {
 				if now.After(post.ScheduleAt) {
 					err := sendPostNotif(post)
 					if err != nil {
+						log.Error(fmt.Sprintf("Error in deleting post after schedule send:\n%s", err.Error()))
+						checkerGoroutineRunning = false
+						log.Info("Scheduler Stopped")
 						return
 					}
 					err = DeletePost(post.ID)
 					if err != nil {
 						log.Error(fmt.Sprintf("Error in deleting post after schedule send:\n%s", err.Error()))
+						checkerGoroutineRunning = false
+						log.Info("Scheduler Stopped")
 						return
 					}
 					PublishUpdate("post deleted")
 					if len(Posts) == 0 {
 						checkerGoroutineRunning = false
+						log.Info("Scheduler Stopped")
 						return
 					}
 				} else {
@@ -442,10 +450,10 @@ func updatePost(c echo.Context, post *models.Post) error {
 			{
 				Title:       c.FormValue("titleInput"),
 				Description: c.FormValue("descriptionInput"),
-				Image:       models.URL{URL: c.FormValue("imageURLInput")},
+				Image:       models.URL{URL: post.Message.Embed[0].Image.URL},
 				URL:         c.FormValue("urlInput"),
 				Color:       color,
-				Thumbnail:   models.URL{URL: c.FormValue("thumbnailInput")},
+				Thumbnail:   models.URL{URL: post.Message.Embed[0].Thumbnail.URL},
 				Footer: models.Footer{
 					IconURL: c.FormValue("footerIconInput"),
 					Text:    c.FormValue("footerTextInput"),
