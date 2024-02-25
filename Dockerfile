@@ -13,4 +13,6 @@ RUN go mod download
 
 RUN go build -o /goLive
 
+ENV GOLIVE_PORT=8080
+
 CMD ["./goLiveNotif"]
