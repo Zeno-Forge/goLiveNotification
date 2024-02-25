@@ -3,13 +3,11 @@ package main
 import (
 	"context"
 	"log/slog"
-	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"zenoforge.com/goLiveNotif/handlers"
 	"zenoforge.com/goLiveNotif/log"
-	"zenoforge.com/goLiveNotif/models"
 	"zenoforge.com/goLiveNotif/utils"
 )
 
@@ -67,21 +65,16 @@ func NewServer(logger *slog.Logger) *echo.Echo {
 }
 
 func main() {
-	// Load posts from file
-	if err := utils.LoadDataFromFile(&handlers.Posts, "data", "postStorage.json"); err != nil && !os.IsNotExist(err) {
-		log.LogIt(context.Background(), slog.LevelError, "Failed to load posts", slog.String("Error:", err.Error()))
+	// Get port from ENV
+	port, ok := utils.GetEnv("GOLIVE_PORT")
+	if !ok {
+		port = ":8080"
 	}
 
 	server := NewServer(log.Log)
 
-	var config models.AppConfig
-	err := utils.LoadDataFromFile(&config, "data", "app.config.json")
-	if err != nil {
-		panic(err)
-	}
-
 	handlers.ManageScheduledPosts()
 
 	// Start server
-	server.Logger.Fatal(server.Start(config.Port))
+	server.Logger.Fatal(server.Start(port))
 }

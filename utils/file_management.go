@@ -37,11 +37,8 @@ func LoadDataFromFile(data interface{}, dirPath string, filename string) error {
 	fullPath := filepath.Join(dirPath, filename)
 
 	file, err := os.Open(fullPath)
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil {
 		return err
-	}
-	if os.IsNotExist(err) {
-		return nil
 	}
 	defer file.Close()
 

@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"zenoforge.com/goLiveNotif/log"
@@ -18,7 +19,14 @@ func MainPageHandler(c echo.Context) error {
 	var appConfig models.AppConfig
 
 	err := utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
-	if err != nil {
+	if err != nil && os.IsNotExist(err) {
+		appConfig = createDefConf()
+		if err := utils.SaveDataToFile(appConfig, "data", "app.config.json"); err != nil {
+			log.Error(err.Error())
+			return err
+		}
+
+	} else if err != nil {
 		log.Error(err.Error())
 		return err
 	}

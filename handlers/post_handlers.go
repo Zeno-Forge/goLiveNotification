@@ -27,7 +27,16 @@ var Posts []models.Post
 func CreatePostHandler(c echo.Context) error {
 	var appConfig models.AppConfig
 	err := utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
-	if err != nil {
+
+	if err != nil && os.IsNotExist(err) {
+		appConfig = createDefConf()
+		if err := utils.SaveDataToFile(appConfig, "data", "app.config.json"); err != nil {
+			log.Error(err.Error())
+			return err
+		}
+
+	} else if err != nil {
+		log.Error(err.Error())
 		return err
 	}
 
@@ -107,7 +116,14 @@ func GetTemplateHandler(c echo.Context) error {
 	var appConfig models.AppConfig
 
 	err := utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
-	if err != nil {
+	if err != nil && os.IsNotExist(err) {
+		appConfig = createDefConf()
+		if err := utils.SaveDataToFile(appConfig, "data", "app.config.json"); err != nil {
+			log.Error(err.Error())
+			return err
+		}
+
+	} else if err != nil {
 		log.Error(err.Error())
 		return err
 	}
@@ -127,7 +143,14 @@ func EditTemplateHandler(c echo.Context) error {
 	var appConfig models.AppConfig
 
 	err := utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
-	if err != nil {
+	if err != nil && os.IsNotExist(err) {
+		appConfig = createDefConf()
+		if err := utils.SaveDataToFile(appConfig, "data", "app.config.json"); err != nil {
+			log.Error(err.Error())
+			return err
+		}
+
+	} else if err != nil {
 		log.Error(err.Error())
 		return err
 	}
@@ -322,8 +345,15 @@ func sendPostNotif(post models.Post) error {
 
 	var appConfig models.AppConfig
 	err = utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
-	if err != nil {
-		log.Error(fmt.Sprintf("Error loading discord data froim config.json:\n%s", err.Error()))
+	if err != nil && os.IsNotExist(err) {
+		appConfig = createDefConf()
+		if err := utils.SaveDataToFile(appConfig, "data", "app.config.json"); err != nil {
+			log.Error(err.Error())
+			return err
+		}
+
+	} else if err != nil {
+		log.Error(err.Error())
 		return err
 	}
 
@@ -468,4 +498,35 @@ func updateFile(file *multipart.FileHeader, dirPath string) error {
 	}
 
 	return nil
+}
+
+func createDefConf() models.AppConfig {
+	var appConfig = models.AppConfig{
+		Name:    "goLiveNotif",
+		Version: "0.1.2",
+		Settings: models.Settings{
+			Theme:          "Light",
+			DiscordWebhook: "Update Me!",
+			PostTemplate: models.PostTemplate{
+				Message: models.DiscordMessage{
+					Embed: []models.Embed{
+						{
+							Title:       "",
+							Description: "",
+							Image:       models.URL{URL: ""},
+							URL:         "",
+							Color:       0,
+							Thumbnail:   models.URL{URL: ""},
+							Footer: models.Footer{
+								IconURL: "",
+								Text:    "",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	return appConfig
 }

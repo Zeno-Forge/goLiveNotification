@@ -1,6 +1,10 @@
 package utils
 
-import "zenoforge.com/goLiveNotif/models"
+import (
+	"os"
+
+	"zenoforge.com/goLiveNotif/models"
+)
 
 func FindPostIndexByID(id string, posts []models.Post) (int, bool) {
 	for index, post := range posts {
@@ -9,4 +13,9 @@ func FindPostIndexByID(id string, posts []models.Post) (int, bool) {
 		}
 	}
 	return -1, false
+}
+
+func GetEnv(key string) (string, bool) {
+	val, ok := os.LookupEnv(key)
+	return val, ok
 }

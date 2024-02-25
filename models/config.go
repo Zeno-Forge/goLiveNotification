@@ -3,7 +3,6 @@ package models
 type AppConfig struct {
 	Name     string   `json:"name"`
 	Version  string   `json:"version"`
-	Port     string   `json:"port"`
 	Settings Settings `json:"settings"`
 }
 
