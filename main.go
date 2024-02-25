@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"zenoforge.com/goLiveNotif/handlers"
 	"zenoforge.com/goLiveNotif/log"
+	"zenoforge.com/goLiveNotif/models"
 	"zenoforge.com/goLiveNotif/utils"
 )
 
@@ -74,6 +75,12 @@ func main() {
 	server := NewServer(log.Log)
 
 	handlers.ManageScheduledPosts()
+
+	var savedPosts []models.Post
+	err := utils.LoadDataFromFile(savedPosts, "data", "postStorage.json")
+	if err == nil {
+		handlers.Posts = savedPosts
+	}
 
 	// Start server
 	server.Logger.Fatal(server.Start(port))
