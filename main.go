@@ -61,7 +61,7 @@ func NewServer(logger *slog.Logger) *echo.Echo {
 	e.GET("/get-posts", handlers.GetPostList)
 	e.GET("/template", handlers.GetTemplateHandler)
 	e.PUT("/template", handlers.EditTemplateHandler)
-	e.POST("webhook", handlers.WebhookHandler)
+	e.POST("/webhook", handlers.WebhookHandler)
 
 	return e
 }

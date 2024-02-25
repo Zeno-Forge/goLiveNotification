@@ -25,7 +25,7 @@ func BasePage(content templ.Component, appConfig models.AppConfig) templ.Compone
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><title>Go Live Notification Scheduler</title><script src=\"https://unpkg.com/htmx.org\"></script><script src=\"/static/scripts/mainPage.js\"></script><link href=\"/static/styles/tailwind.css\" rel=\"stylesheet\"></head><body class=\"bg-gray-100\"><header class=\"bg-blue-500 text-white p-4 flex justify-between items-center\"><h1 class=\"text-xl font-semibold\">Go Live Notification Scheduler</h1><button id=\"settingsBtn\" class=\"focus:outline-none\">&#9881; Settings</button></header><div id=\"slideOutMenu\" class=\"fixed top-0 right-[-100%] w-64 h-full bg-white shadow-xl transition-transform duration-300 ease-in-out z-50\"><div class=\"p-5\"><h2 class=\"font-semibold text-lg mb-4\">Settings</h2><div class=\"space-y-4\"><div><label class=\"block text-sm font-medium text-gray-700\">Version:</label><div class=\"mt-1\"><label class=\"text-sm text-gray-600\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -38,7 +38,7 @@ func BasePage(content templ.Component, appConfig models.AppConfig) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label></div></div><div><label for=\"discordWebhook\" class=\"block text-sm font-medium text-gray-700\">Discord Webhook URL:</label> <input type=\"text\" id=\"discordWebhook\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -46,7 +46,7 @@ func BasePage(content templ.Component, appConfig models.AppConfig) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" name=\"discordWebhook\" hx-post=\"/webhook\" hx-trigger=\"blur\" class=\"mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full text-sm\"></div><div><button type=\"button\" id=\"templateBtn\" hx-get=\"/template\" hx-target=\"#editModal\" hx-swap=\"outerHTML\" class=\"text-white bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 px-4 py-2 rounded-md text-sm font-medium transition ease-in-out duration-150\">Edit Template</button></div></div></div></div><main class=\"p-4\"><!-- Create New Post Button --><div class=\"mb-4\"><button hx-get=\"/post/create\" hx-target=\"#editModal\" hx-swap=\"outerHTML\" class=\"bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded\">Create New Post</button></div><div class=\"modal\" id=\"editModal\" style=\"display:none;\"><!-- Modal content will be injected here --></div><div id=\"postListWrapper\" hx-get=\"/get-posts\" hx-target=\"#postList\" hx-trigger=\"sseReceived\" hx-swap=\"outerHTML\"><!-- Dynamic content from server -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -54,7 +54,7 @@ func BasePage(content templ.Component, appConfig models.AppConfig) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 4)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></main></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
