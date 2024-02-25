@@ -4,12 +4,23 @@ import "strconv"
 import "fmt"
 import "zenoforge.com/goLiveNotif/models"
 
-templ PostModal(postItem models.Post) {
+templ PostModal(postItem models.Post, modalTitle string) {
 	<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center" id="editModal">
 		<div class="bg-white p-5 rounded-lg shadow-lg w-full max-w-2xl">
-			<form id="editForm" class="space-y-4" hx-put={ fmt.Sprintf("/post/%d", postItem.ID) } hx-target="#postList" hx-swap="outerHTML" enctype="multipart/form-data">
+			<form
+				id="editForm"
+				class="space-y-4"
+				if postItem.Template {
+					hx-put="/template"
+				} else {
+					hx-put={ fmt.Sprintf("/post/%d", postItem.ID) }
+					hx-target="#postList"
+					hx-swap="outerHTML"
+				}
+				enctype="multipart/form-data"
+			>
 				<div class="flex justify-between items-center mb-4">
-					<h2 class="text-xl font-semibold">Edit Post</h2>
+					<h2 class="text-xl font-semibold">{ modalTitle }</h2>
 					<div>
 						<label for="schedule" class="block text-sm font-medium text-gray-700 mr-2">Schedule</label>
 						<input type="datetime-local" id="scheduleInput" name="scheduleInput" value={ postItem.ScheduleAt.Format("2006-01-02T15:04") } class="mt-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm leading-tight focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"/>

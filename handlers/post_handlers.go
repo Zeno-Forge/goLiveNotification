@@ -10,6 +10,7 @@ import (
 	"net/textproto"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"time"
 
@@ -22,31 +23,16 @@ import (
 
 var Posts []models.Post
 
-func CreatePost(c echo.Context) error {
-	var discordConf models.DiscordConfig
-	err := utils.LoadDataFromFile(&discordConf, "data", "config.json")
+func CreatePostHandler(c echo.Context) error {
+	var appConfig models.AppConfig
+	err := utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
 	if err != nil {
 		return err
 	}
 
-	contentString := fmt.Sprintf("<@&%s>", discordConf.Discord.RoleID)
-
 	var newPost = models.Post{
 		ScheduleAt: time.Now(),
-		Message: models.DiscordMessage{
-			Content: contentString,
-			Embed: []models.Embed{
-				{
-					Thumbnail: models.URL{URL: "https://static-cdn.jtvnw.net/jtv_user_pictures/f77022c4-2d3e-45ff-a7a9-22ada2688c50-profile_image-300x300.png"},
-					URL:       "https://twitch.tv/marshievt",
-					Color:     6504867,
-					Footer: models.Footer{
-						IconURL: "https://www.freepnglogos.com/uploads/twitch-logo-transparent-png-20.png",
-						Text:    "Twitch",
-					},
-				},
-			},
-		},
+		Message:    appConfig.Settings.PostTemplate.Message,
 	}
 
 	// Assign a new unique ID
@@ -56,18 +42,20 @@ func CreatePost(c echo.Context) error {
 	}
 	newPost.ID = newID
 
-	postModal := templates.PostModal(newPost)
+	postModal := templates.PostModal(newPost, "Create Post")
 
 	return utils.Render(c, http.StatusOK, postModal)
 }
 
 func GetPostList(c echo.Context) error {
+	sortPosts()
+
 	postListComp := templates.PostsTempl(Posts)
 
 	return utils.Render(c, http.StatusOK, postListComp)
 }
 
-func GetPost(c echo.Context) error {
+func GetPostHandler(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid post ID"})
@@ -78,82 +66,31 @@ func GetPost(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, map[string]string{"message": "Post not found"})
 	}
 
-	postModal := templates.PostModal(Posts[index])
+	postModal := templates.PostModal(Posts[index], "Edit Post")
 
 	return utils.Render(c, http.StatusOK, postModal)
 }
 
-func EditPost(c echo.Context) error {
+func EditPostHandler(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid post ID"})
 	}
 
-	color, _ := strconv.Atoi(c.FormValue("colorInput"))
-
-	timezone := c.FormValue("timezone")
-	loc, err := time.LoadLocation(timezone)
+	updatedPost, err := updatePost(c)
 	if err != nil {
-		return err
-	}
-	schedule, err := time.ParseInLocation("2006-01-02T15:04", c.FormValue("scheduleInput"), loc)
-	if err != nil {
+		log.Error(err.Error())
 		return err
 	}
 
-	var updatedPost = models.Post{
-		ID:         id,
-		ScheduleAt: schedule,
-		Message: models.DiscordMessage{
-			Content: c.FormValue("contentInput"),
-			Embed: []models.Embed{
-				{
-					Title:       c.FormValue("titleInput"),
-					Description: c.FormValue("descriptionInput"),
-					URL:         c.FormValue("urlInput"),
-					Color:       color,
-					Thumbnail:   models.URL{URL: c.FormValue("thumbnailInput")},
-					Footer: models.Footer{
-						IconURL: c.FormValue("footerIconInput"),
-						Text:    c.FormValue("footerTextInput"),
-					},
-				},
-			},
-		},
-	}
-
-	file, err := c.FormFile("imageUpload")
-	if err == nil {
-		src, err := file.Open()
-
-		if err != nil {
-			return err
-		}
-
-		defer src.Close()
-		dirPath := "./data/uploads/" + c.Param("id")
-		os.MkdirAll(dirPath, 0755)
-		dstPath := dirPath + "/" + file.Filename
-
-		dst, err := os.Create(dstPath)
-		if err != nil {
-			return err
-		}
-
-		defer dst.Close()
-
-		if _, err = io.Copy(dst, src); err != nil {
-			return err
-		}
-
-		updatedPost.Message.Embed[0].Image.URL = dstPath
-	}
+	updatedPost.ID = id
+	updatedPost.Template = false
 
 	index, found := utils.FindPostIndexByID(id, Posts)
 	if !found {
-		Posts = append(Posts, updatedPost)
+		Posts = append(Posts, *updatedPost)
 	} else {
-		Posts[index] = updatedPost
+		Posts[index] = *updatedPost
 	}
 
 	if err := utils.SaveDataToFile(Posts, "data", "postStorage.json"); err != nil {
@@ -162,9 +99,56 @@ func EditPost(c echo.Context) error {
 
 	ManageScheduledPosts()
 
+	sortPosts()
+
 	postListComp := templates.PostsTempl(Posts)
 
 	return utils.Render(c, http.StatusOK, postListComp)
+}
+
+func GetTemplateHandler(c echo.Context) error {
+
+	var appConfig models.AppConfig
+
+	err := utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	var postTemp = models.Post{
+		Template: true,
+		Message:  appConfig.Settings.PostTemplate.Message,
+	}
+
+	postModal := templates.PostModal(postTemp, "Edit Template")
+
+	return utils.Render(c, http.StatusOK, postModal)
+}
+
+func EditTemplateHandler(c echo.Context) error {
+
+	var appConfig models.AppConfig
+
+	err := utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	updatedPost, err := updatePost(c)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	appConfig.Settings.PostTemplate.Message = updatedPost.Message
+
+	if err := utils.SaveDataToFile(appConfig, "data", "app.config.json"); err != nil {
+		return err
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 func DeletePostHandler(c echo.Context) error {
@@ -179,6 +163,8 @@ func DeletePostHandler(c echo.Context) error {
 	}
 
 	ManageScheduledPosts()
+
+	sortPosts()
 
 	postListComp := templates.PostsTempl(Posts)
 
@@ -312,14 +298,14 @@ func sendPostNotif(post models.Post) error {
 
 	multipartWriter.Close()
 
-	var discConf models.DiscordConfig
-	err = utils.LoadDataFromFile(&discConf, "data", "config.json")
+	var appSettings models.Settings
+	err = utils.LoadDataFromFile(&appSettings, "data", "app.config.json")
 	if err != nil {
 		log.Error(fmt.Sprintf("Error loading discord data froim config.json:\n%s", err.Error()))
 		return err
 	}
 
-	webhookURL := discConf.Discord.WebhookUrl
+	webhookURL := appSettings.DiscordWebhook
 
 	req, err := http.NewRequest("POST", webhookURL, &buffer)
 	if err != nil {
@@ -343,4 +329,78 @@ func sendPostNotif(post models.Post) error {
 	}
 
 	return nil
+}
+
+func sortPosts() {
+	slices.SortFunc(Posts, func(a, b models.Post) int {
+		if a.ScheduleAt.Before(b.ScheduleAt) {
+			return -1
+		} else if a.ScheduleAt.After(b.ScheduleAt) {
+			return 1
+		}
+		return 0
+	})
+}
+
+func updatePost(c echo.Context) (*models.Post, error) {
+	color, _ := strconv.Atoi(c.FormValue("colorInput"))
+
+	timezone := c.FormValue("timezone")
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		return nil, err
+	}
+	schedule, err := time.ParseInLocation("2006-01-02T15:04", c.FormValue("scheduleInput"), loc)
+	if err != nil {
+		return nil, err
+	}
+
+	var updatedPost = models.Post{
+		ScheduleAt: schedule,
+		Message: models.DiscordMessage{
+			Content: c.FormValue("contentInput"),
+			Embed: []models.Embed{
+				{
+					Title:       c.FormValue("titleInput"),
+					Description: c.FormValue("descriptionInput"),
+					URL:         c.FormValue("urlInput"),
+					Color:       color,
+					Thumbnail:   models.URL{URL: c.FormValue("thumbnailInput")},
+					Footer: models.Footer{
+						IconURL: c.FormValue("footerIconInput"),
+						Text:    c.FormValue("footerTextInput"),
+					},
+				},
+			},
+		},
+	}
+
+	file, err := c.FormFile("imageUpload")
+	if err == nil {
+		src, err := file.Open()
+
+		if err != nil {
+			return nil, err
+		}
+
+		defer src.Close()
+		dirPath := "./data/uploads/" + c.Param("id")
+		os.MkdirAll(dirPath, 0755)
+		dstPath := dirPath + "/" + file.Filename
+
+		dst, err := os.Create(dstPath)
+		if err != nil {
+			return nil, err
+		}
+
+		defer dst.Close()
+
+		if _, err = io.Copy(dst, src); err != nil {
+			return nil, err
+		}
+
+		updatedPost.Message.Embed[0].Image.URL = dstPath
+	}
+
+	return &updatedPost, nil
 }

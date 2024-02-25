@@ -10,7 +10,9 @@ import "context"
 import "io"
 import "bytes"
 
-func BasePage(content templ.Component) templ.Component {
+import "zenoforge.com/goLiveNotif/models"
+
+func BasePage(content templ.Component, appConfig models.AppConfig) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -23,7 +25,28 @@ func BasePage(content templ.Component) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><title>Go Live Notification Scheduler</title><script src=\"https://unpkg.com/htmx.org\"></script><link href=\"/static/styles/tailwind.css\" rel=\"stylesheet\"></head><body class=\"bg-gray-100\"><header class=\"bg-blue-500 text-white p-4\"><h1 class=\"text-xl font-semibold\">Go Live Notification Scheduler</h1></header><main class=\"p-4\"><!-- Create New Post Button --><div class=\"mb-4\"><button hx-get=\"/post/create\" hx-target=\"#editModal\" hx-swap=\"outerHTML\" class=\"bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded\">Create New Post</button></div><div class=\"modal\" id=\"editModal\" style=\"display:none;\"><!-- Modal content will be injected here --></div><div id=\"postListWrapper\" hx-get=\"/get-posts\" hx-target=\"#postList\" hx-trigger=\"sseReceived\" hx-swap=\"outerHTML\"><!-- Dynamic content from server -->")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 string
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(appConfig.Version)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/base.templ`, Line: 25, Col: 64}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(appConfig.Settings.DiscordWebhook))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -31,7 +54,7 @@ func BasePage(content templ.Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></main></body><script>\n    // Establish the SSE connection to the server\n    const eventSource = new EventSource('/events');\n    eventSource.onmessage = function(event) {\n        // When a message is received, dispatch a custom event to trigger HTMX to reload the posts list\n        document.getElementById('postListWrapper').dispatchEvent(new CustomEvent('sseReceived'));\n    };\n    </script></html>")
+		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 4)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

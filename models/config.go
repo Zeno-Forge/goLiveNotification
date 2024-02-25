@@ -1,14 +1,18 @@
 package models
 
-type ServerConfig struct {
-	Server struct {
-		Port string `json:"port"`
-	} `json:"server"`
+type AppConfig struct {
+	Name     string   `json:"name"`
+	Version  string   `json:"version"`
+	Port     string   `json:"port"`
+	Settings Settings `json:"settings"`
 }
 
-type DiscordConfig struct {
-	Discord struct {
-		WebhookUrl string `json:"webhook_url"`
-		RoleID     string `json:"role_id"`
-	} `json:"discord"`
+type Settings struct {
+	Theme          string       `json:"theme"`
+	DiscordWebhook string       `json:"discord_webhook"`
+	PostTemplate   PostTemplate `json:"post_template"`
+}
+
+type PostTemplate struct {
+	Message DiscordMessage `json:"message"`
 }

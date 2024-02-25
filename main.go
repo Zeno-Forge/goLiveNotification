@@ -52,13 +52,16 @@ func NewServer(logger *slog.Logger) *echo.Echo {
 	e.Static("/data/uploads", "./data/uploads")
 
 	// Routes
-	e.GET("/", handlers.MainPage)
-	e.GET("/post/:id", handlers.GetPost)
-	e.GET("/post/create", handlers.CreatePost)
-	e.PUT("/post/:id", handlers.EditPost)
+	e.GET("/", handlers.MainPageHandler)
+	e.GET("/post/:id", handlers.GetPostHandler)
+	e.GET("/post/create", handlers.CreatePostHandler)
+	e.PUT("/post/:id", handlers.EditPostHandler)
 	e.DELETE("/post/:id", handlers.DeletePostHandler)
 	e.GET("/events", handlers.EventsHandler)
 	e.GET("/get-posts", handlers.GetPostList)
+	e.GET("/template", handlers.GetTemplateHandler)
+	e.PUT("/template", handlers.EditTemplateHandler)
+	e.POST("webhook", handlers.WebhookHandler)
 
 	return e
 }
@@ -71,8 +74,8 @@ func main() {
 
 	server := NewServer(log.Log)
 
-	var config models.ServerConfig
-	err := utils.LoadDataFromFile(&config, "data", "config.json")
+	var config models.AppConfig
+	err := utils.LoadDataFromFile(&config, "data", "app.config.json")
 	if err != nil {
 		panic(err)
 	}
@@ -80,5 +83,5 @@ func main() {
 	handlers.ManageScheduledPosts()
 
 	// Start server
-	server.Logger.Fatal(server.Start(config.Server.Port))
+	server.Logger.Fatal(server.Start(config.Port))
 }

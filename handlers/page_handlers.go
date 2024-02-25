@@ -6,13 +6,44 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"zenoforge.com/goLiveNotif/log"
+	"zenoforge.com/goLiveNotif/models"
 	"zenoforge.com/goLiveNotif/templates"
 	"zenoforge.com/goLiveNotif/utils"
 )
 
-func MainPage(c echo.Context) error {
+func MainPageHandler(c echo.Context) error {
+	sortPosts()
 	postListComp := templates.PostsTempl(Posts)
-	return utils.Render(c, http.StatusOK, templates.BasePage(postListComp))
+
+	var appConfig models.AppConfig
+
+	err := utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	return utils.Render(c, http.StatusOK, templates.BasePage(postListComp, appConfig))
+}
+
+func WebhookHandler(c echo.Context) error {
+	var appConfig models.AppConfig
+
+	err := utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	appConfig.Settings.DiscordWebhook = c.FormValue("discordWebhook")
+
+	err = utils.SaveDataToFile(&appConfig, "data", "app.config.json")
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	return c.NoContent(http.StatusOK)
 }
 
 var updates = make(chan string)

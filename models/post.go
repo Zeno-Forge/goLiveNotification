@@ -4,6 +4,7 @@ import "time"
 
 type Post struct {
 	ID         int            `json:"id"`
+	Template   bool           `json:"template"`
 	ScheduleAt time.Time      `json:"schedule_at"`
 	Message    DiscordMessage `json:"message"`
 }

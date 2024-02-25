@@ -1,17 +1,43 @@
 package templates
 
-templ BasePage(content templ.Component) {
+import "zenoforge.com/goLiveNotif/models"
+
+templ BasePage(content templ.Component, appConfig models.AppConfig) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
 			<title>Go Live Notification Scheduler</title>
 			<script src="https://unpkg.com/htmx.org"></script>
+			<script src="/static/scripts/mainPage.js"></script>
 			<link href="/static/styles/tailwind.css" rel="stylesheet"/>
 		</head>
 		<body class="bg-gray-100">
-			<header class="bg-blue-500 text-white p-4">
+			<header class="bg-blue-500 text-white p-4 flex justify-between items-center">
 				<h1 class="text-xl font-semibold">Go Live Notification Scheduler</h1>
+				<button id="settingsBtn" class="focus:outline-none">&#9881; Settings</button>
 			</header>
+			<div id="slideOutMenu" class="fixed top-0 right-[-100%] w-64 h-full bg-white shadow-xl transition-transform duration-300 ease-in-out z-50">
+				<div class="p-5">
+					<h2 class="font-semibold text-lg mb-4">Settings</h2>
+					<div class="space-y-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700">Version:</label>
+							<div class="mt-1">
+								<label class="text-sm text-gray-600">{ appConfig.Version }</label>
+							</div>
+						</div>
+						<div>
+							<label for="discordWebhook" class="block text-sm font-medium text-gray-700">Discord Webhook URL:</label>
+							<input type="text" id="discordWebhook" value={ appConfig.Settings.DiscordWebhook } name="discordWebhook" hx-post="/webhook" hx-trigger="blur" class="mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full text-sm"/>
+						</div>
+						<div>
+							<button type="button" id="templateBtn" hx-get="/template" hx-target="#editModal" hx-swap="outerHTML" class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 px-4 py-2 rounded-md text-sm font-medium transition ease-in-out duration-150">
+								Edit Template
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
 			<main class="p-4">
 				<!-- Create New Post Button -->
 				<div class="mb-4">
@@ -26,13 +52,5 @@ templ BasePage(content templ.Component) {
 				</div>
 			</main>
 		</body>
-		<script>
-    // Establish the SSE connection to the server
-    const eventSource = new EventSource('/events');
-    eventSource.onmessage = function(event) {
-        // When a message is received, dispatch a custom event to trigger HTMX to reload the posts list
-        document.getElementById('postListWrapper').dispatchEvent(new CustomEvent('sseReceived'));
-    };
-    </script>
 	</html>
 }
