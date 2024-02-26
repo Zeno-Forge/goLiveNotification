@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+
+	"zenoforge.com/goLiveNotif/log"
 )
 
 func SaveDataToFile(data interface{}, dirPath string, filename string) error {
@@ -35,6 +37,8 @@ func LoadDataFromFile(data interface{}, dirPath string, filename string) error {
 	}
 
 	fullPath := filepath.Join(dirPath, filename)
+
+	log.Info(fullPath)
 
 	file, err := os.Open(fullPath)
 	if err != nil {

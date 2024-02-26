@@ -72,15 +72,16 @@ func main() {
 		port = ":8080"
 	}
 
-	server := NewServer(log.Log)
-
-	handlers.ManageScheduledPosts()
-
 	var savedPosts []models.Post
-	err := utils.LoadDataFromFile(savedPosts, "data", "postStorage.json")
+	err := utils.LoadDataFromFile(&savedPosts, "data", "postStorage.json")
 	if err == nil {
 		handlers.Posts = savedPosts
+		log.Info("Saved Posts Loaded")
+	} else {
+		log.Error(err.Error())
 	}
+
+	server := NewServer(log.Log)
 
 	// Start server
 	server.Logger.Fatal(server.Start(port))

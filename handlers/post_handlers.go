@@ -79,9 +79,23 @@ func EditPostHandler(c echo.Context) error {
 
 	index, found := utils.FindPostIndexByID(id, Posts)
 	if !found {
+
+		var appConfig models.AppConfig
+
+		err := utils.LoadDataFromFile(&appConfig, "data", "app.config.json")
+		if err != nil && os.IsNotExist(err) {
+			appConfig = createDefConf()
+			if err := utils.SaveDataToFile(appConfig, "data", "app.config.json"); err != nil {
+				log.Error(err.Error())
+				return err
+			}
+		}
+
 		var newPost models.Post
 		newPost.ID = id
-		err := updatePost(c, &newPost)
+		newPost.Message = appConfig.Settings.PostTemplate.Message
+
+		err = updatePost(c, &newPost)
 		if err != nil {
 			log.Error(err.Error())
 			return err
@@ -289,7 +303,7 @@ func sendPostNotif(post models.Post) error {
 		}
 		defer file.Close()
 
-		filePart, err := multipartWriter.CreateFormFile("file", filepath.Base(file.Name()))
+		filePart, err := multipartWriter.CreateFormFile("files", filepath.Base(file.Name()))
 		if err != nil {
 			log.Error(fmt.Sprintf("Error in creating file part for discord request:\n%s", err.Error()))
 			return err
@@ -313,7 +327,7 @@ func sendPostNotif(post models.Post) error {
 		}
 		defer thumbFile.Close()
 
-		thumbPart, err := multipartWriter.CreateFormFile("file", filepath.Base(thumbFile.Name()))
+		thumbPart, err := multipartWriter.CreateFormFile("files", filepath.Base(thumbFile.Name()))
 		if err != nil {
 			log.Error(fmt.Sprintf("Error in creating file part for discord request:\n%s", err.Error()))
 			return err

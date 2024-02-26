@@ -13,6 +13,9 @@ import (
 )
 
 func MainPageHandler(c echo.Context) error {
+
+	ManageScheduledPosts()
+
 	sortPosts()
 	postListComp := templates.PostsTempl(Posts)
 
