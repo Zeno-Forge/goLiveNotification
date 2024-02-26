@@ -10,8 +10,10 @@ import (
 	"net/textproto"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -303,7 +305,7 @@ func sendPostNotif(post models.Post) error {
 		}
 		defer file.Close()
 
-		filePart, err := multipartWriter.CreateFormFile("files", filepath.Base(file.Name()))
+		filePart, err := multipartWriter.CreateFormFile("file", sanitizeString(filepath.Base(file.Name())))
 		if err != nil {
 			log.Error(fmt.Sprintf("Error in creating file part for discord request:\n%s", err.Error()))
 			return err
@@ -314,7 +316,7 @@ func sendPostNotif(post models.Post) error {
 			return err
 		}
 
-		post.Message.Embed[0].Image.URL = fmt.Sprintf("attachment://%s", filepath.Base(file.Name()))
+		post.Message.Embed[0].Image.URL = fmt.Sprintf("attachment://%s", sanitizeString(filepath.Base(file.Name())))
 	}
 
 	// Create a part for the thumbnail file
@@ -327,7 +329,7 @@ func sendPostNotif(post models.Post) error {
 		}
 		defer thumbFile.Close()
 
-		thumbPart, err := multipartWriter.CreateFormFile("files", filepath.Base(thumbFile.Name()))
+		thumbPart, err := multipartWriter.CreateFormFile("thumbfile", sanitizeString(filepath.Base(thumbFile.Name())))
 		if err != nil {
 			log.Error(fmt.Sprintf("Error in creating file part for discord request:\n%s", err.Error()))
 			return err
@@ -338,7 +340,7 @@ func sendPostNotif(post models.Post) error {
 			return err
 		}
 
-		post.Message.Embed[0].Thumbnail.URL = fmt.Sprintf("attachment://%s", filepath.Base(thumbFile.Name()))
+		post.Message.Embed[0].Thumbnail.URL = fmt.Sprintf("attachment://%s", sanitizeString(filepath.Base(thumbFile.Name())))
 	}
 
 	// Create a part for the JSON payload
@@ -403,6 +405,21 @@ func sendPostNotif(post models.Post) error {
 	}
 
 	return nil
+}
+
+func sanitizeString(input string) string {
+	// Replace spaces with underscores
+	withUnderscores := strings.ReplaceAll(input, " ", "_")
+
+	// Remove special characters, only allow letters, numbers, underscores and periods
+	reg, err := regexp.Compile("[^a-zA-Z0-9_.]+")
+	if err != nil {
+		fmt.Println("Regex compile error:", err)
+		return ""
+	}
+	sanitized := reg.ReplaceAllString(withUnderscores, "")
+
+	return sanitized
 }
 
 func sortPosts() {
