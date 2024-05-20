@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"sync"
 
 	"github.com/labstack/echo/v4"
 	"zenoforge.com/goLiveNotif/log"
@@ -57,10 +58,24 @@ func WebhookHandler(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-var updates = make(chan string)
+// Structure to manage user channels
+type UserChannels struct {
+	channels []chan string
+	mu       sync.Mutex
+}
+
+var userChannels = &UserChannels{
+	channels: make([]chan string, 0),
+}
 
 func PublishUpdate(update string) {
-	updates <- update
+	userChannels.mu.Lock()
+	defer userChannels.mu.Unlock()
+
+	// Broadcast the update to all user channels
+	for _, ch := range userChannels.channels {
+		ch <- update
+	}
 }
 
 func EventsHandler(c echo.Context) error {
@@ -73,12 +88,31 @@ func EventsHandler(c echo.Context) error {
 	c.Response().Header().Add("Cache-Control", "no-cache")
 	c.Response().Header().Add("Connection", "keep-alive")
 
+	// Create a new channel for this connection
+	userChannel := make(chan string)
+	userChannels.mu.Lock()
+	userChannels.channels = append(userChannels.channels, userChannel)
+	userChannels.mu.Unlock()
+
+	defer func() {
+		// Clean up the channel when the connection is closed
+		userChannels.mu.Lock()
+		for i, ch := range userChannels.channels {
+			if ch == userChannel {
+				userChannels.channels = append(userChannels.channels[:i], userChannels.channels[i+1:]...)
+				close(userChannel)
+				break
+			}
+		}
+		userChannels.mu.Unlock()
+	}()
+
 	for {
 		select {
 		case <-c.Request().Context().Done():
 			// Client disconnected; exit handler
 			return nil
-		case update := <-updates:
+		case update := <-userChannel:
 			// Send updates to the client
 			_, err := fmt.Fprintf(c.Response().Writer, "data: %s\n\n", update)
 			if err != nil {
