@@ -437,12 +437,15 @@ func updatePost(c echo.Context, post *models.Post) error {
 	color, _ := strconv.Atoi(c.FormValue("colorInput"))
 
 	timezone := c.FormValue("timezone")
+	log.Info("The timezone input from form is: %s", timezone)
 	loc, err := time.LoadLocation(timezone)
 	if err != nil {
+		log.Error(fmt.Sprintf("Error loading location:\n%s", err.Error()))
 		return err
 	}
 	schedule, err := time.ParseInLocation("2006-01-02T15:04", c.FormValue("scheduleInput"), loc)
 	if err != nil {
+		log.Error(fmt.Sprintf("Error parsing time in location:\n%s", err.Error()))
 		return err
 	}
 

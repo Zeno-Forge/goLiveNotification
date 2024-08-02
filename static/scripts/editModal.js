@@ -12,7 +12,6 @@ var imgPrev = document.getElementById("image-preview");
 document
   .querySelector("form")
   .addEventListener("htmx:configRequest", function (evt) {
-    const formData = new FormData(evt.detail.formData);
     evt.detail.parameters["timezone"] =
       Intl.DateTimeFormat().resolvedOptions().timeZone;
 
