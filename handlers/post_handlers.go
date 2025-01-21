@@ -505,12 +505,22 @@ func updatePost(c echo.Context, post *models.Post) error {
 	if err == nil {
 		updateFile(file, dirPath)
 		post.Message.Embed[0].Image.URL = dirPath + "/" + file.Filename
+	} else if err.Error() == "http: no such file" {
+		post.Message.Embed[0].Image.URL = ""
+	} else {
+		log.Error(fmt.Sprintf("Error in updating post image:\n%s", err.Error()))
+		return err
 	}
 
 	thumbImg, err := c.FormFile("thumbImgUpload")
 	if err == nil {
 		updateFile(thumbImg, dirPath)
 		post.Message.Embed[0].Thumbnail.URL = dirPath + "/" + thumbImg.Filename
+	} else if err.Error() == "http: no such file" {
+		post.Message.Embed[0].Thumbnail.URL = ""
+	} else {
+		log.Error(fmt.Sprintf("Error in updating post thumbnail:\n%s", err.Error()))
+		return err
 	}
 
 	return nil
