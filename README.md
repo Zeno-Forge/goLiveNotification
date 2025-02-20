@@ -8,8 +8,6 @@ This application allows users to schedule and send notifications to Discord via 
 - **Customizable Messages:** Customize the content, title, description, URL, color, thumbnail, image, and footer of the Discord embed.
 - **Image and Thumbnail Uploads:** Upload images and thumbnails to be included in the Discord embed.
 - **Template Editing:** Edit a default post template to be used for new posts.
-- **Real-time Updates:** Uses Server-Sent Events (SSE) to provide real-time updates to the UI when posts are scheduled or deleted.
-- **Persistent Storage:** Saves post data and application configuration to JSON files.
 
 ## Tech Stack
 
